@@ -15,6 +15,7 @@ use AppBundle\Entity\Comment;
 use AppBundle\Entity\Post;
 use AppBundle\Events;
 use AppBundle\Form\CommentType;
+use AppBundle\Manager\PostManager;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Cache;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
@@ -47,11 +48,14 @@ class BlogController extends Controller
      * NOTE: For standard formats, Symfony will also automatically choose the best
      * Content-Type header for the response.
      * See https://symfony.com/doc/current/quick_tour/the_controller.html#using-formats
+     * @param $page
+     * @param $_format
+     * @param PostManager $postManager
+     * @return Response
      */
-    public function indexAction($page, $_format)
+    public function indexAction($page, $_format, PostManager $postManager)
     {
-        $em = $this->getDoctrine()->getManager();
-        $posts = $em->getRepository(Post::class)->findLatest($page);
+        $posts = $postManager->findLatest($page);
 
         // Every template name also has two extensions that specify the format and
         // engine for that template.
@@ -156,16 +160,18 @@ class BlogController extends Controller
      * @Route("/search", name="blog_search")
      * @Method("GET")
      *
+     * @param Request $request
+     * @param PostManager $postManager
      * @return Response|JsonResponse
      */
-    public function searchAction(Request $request)
+    public function searchAction(Request $request, PostManager $postManager)
     {
         if (!$request->isXmlHttpRequest()) {
             return $this->render('blog/search.html.twig');
         }
 
         $query = $request->query->get('q', '');
-        $posts = $this->getDoctrine()->getRepository(Post::class)->findBySearchQuery($query);
+        $posts = $postManager->findBySearchQuery($query);
 
         $results = [];
         foreach ($posts as $post) {

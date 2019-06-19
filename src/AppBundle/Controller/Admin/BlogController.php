@@ -13,6 +13,7 @@ namespace AppBundle\Controller\Admin;
 
 use AppBundle\Entity\Post;
 use AppBundle\Form\PostType;
+use AppBundle\Manager\PostManager;
 use AppBundle\Utils\Slugger;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -52,11 +53,12 @@ class BlogController extends Controller
      * @Route("/", name="admin_index")
      * @Route("/", name="admin_post_index")
      * @Method("GET")
+     * @param PostManager $postManager
+     * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function indexAction()
+    public function indexAction(PostManager $postManager)
     {
-        $em = $this->getDoctrine()->getManager();
-        $posts = $em->getRepository(Post::class)->findBy(['author' => $this->getUser()], ['publishedAt' => 'DESC']);
+        $posts = $postManager->findByAuthor($this->getUser());
 
         return $this->render('admin/blog/index.html.twig', ['posts' => $posts]);
     }
