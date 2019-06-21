@@ -60,6 +60,13 @@ class Post
     /**
      * @var string
      *
+     * @ORM\Column(type="string", nullable=true)
+     */
+    private $subtitle;
+
+    /**
+     * @var string
+     *
      * @ORM\Column(type="string")
      */
     private $slug;
@@ -138,10 +145,30 @@ class Post
 
     /**
      * @param string $title
+     * @return Post
      */
-    public function setTitle($title)
+    public function setTitle($title): Post
     {
         $this->title = $title;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getSubtitle()
+    {
+        return $this->subtitle;
+    }
+
+    /**
+     * @param string $subtitle
+     * @return Post
+     */
+    public function setSubtitle($subtitle): Post
+    {
+        $this->subtitle = $subtitle;
+        return $this;
     }
 
     public function getSlug()
@@ -151,10 +178,12 @@ class Post
 
     /**
      * @param string $slug
+     * @return Post
      */
-    public function setSlug($slug)
+    public function setSlug($slug): Post
     {
         $this->slug = $slug;
+        return $this;
     }
 
     public function getContent()
@@ -164,10 +193,12 @@ class Post
 
     /**
      * @param string $content
+     * @return Post
      */
-    public function setContent($content)
+    public function setContent($content): Post
     {
         $this->content = $content;
+        return $this;
     }
 
     public function getPublishedAt()
@@ -190,10 +221,12 @@ class Post
 
     /**
      * @param User $author
+     * @return Post
      */
-    public function setAuthor(User $author)
+    public function setAuthor(User $author): Post
     {
         $this->author = $author;
+        return $this;
     }
 
     public function getComments()

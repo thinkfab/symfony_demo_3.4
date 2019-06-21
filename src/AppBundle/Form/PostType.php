@@ -47,6 +47,9 @@ class PostType extends AbstractType
                 'attr' => ['autofocus' => true],
                 'label' => 'label.title',
             ])
+            ->add('subtitle', null, [
+                'label' => 'form.subtitle',
+            ])
             ->add('summary', TextareaType::class, [
                 'label' => 'label.summary',
             ])
