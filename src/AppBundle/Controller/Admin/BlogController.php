@@ -11,6 +11,7 @@
 
 namespace AppBundle\Controller\Admin;
 
+use AppBundle\Contract\Manager\PostManagerInterface;
 use AppBundle\Entity\Post;
 use AppBundle\Form\PostType;
 use AppBundle\Utils\Slugger;
@@ -19,7 +20,9 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Controller used to manage blog contents in the backend.
@@ -52,11 +55,15 @@ class BlogController extends Controller
      * @Route("/", name="admin_index")
      * @Route("/", name="admin_post_index")
      * @Method("GET")
+     * @param PostManagerInterface $postManager
+     * @return Response
      */
-    public function indexAction()
+    public function indexAction(PostManagerInterface $postManager): Response
     {
-        $em = $this->getDoctrine()->getManager();
-        $posts = $em->getRepository(Post::class)->findBy(['author' => $this->getUser()], ['publishedAt' => 'DESC']);
+        $posts = $postManager->findBy(
+            array('author' => $this->getUser()),
+            array('publishedAt' => 'DESC')
+        );
 
         return $this->render('admin/blog/index.html.twig', ['posts' => $posts]);
     }
@@ -70,8 +77,11 @@ class BlogController extends Controller
      * NOTE: the Method annotation is optional, but it's a recommended practice
      * to constraint the HTTP methods each controller responds to (by default
      * it responds to all methods).
+     * @param Request $request
+     * @param Slugger $slugger
+     * @return RedirectResponse|Response
      */
-    public function newAction(Request $request, Slugger $slugger)
+    public function newAction(Request $request, Slugger $slugger): Response
     {
         $post = new Post();
         $post->setAuthor($this->getUser());
@@ -117,8 +127,10 @@ class BlogController extends Controller
      *
      * @Route("/{id}", requirements={"id": "\d+"}, name="admin_post_show")
      * @Method("GET")
+     * @param Post $post
+     * @return Response
      */
-    public function showAction(Post $post)
+    public function showAction(Post $post): Response
     {
         // This security check can also be performed
         // using an annotation: @Security("is_granted('show', post)")
@@ -134,8 +146,12 @@ class BlogController extends Controller
      *
      * @Route("/{id}/edit", requirements={"id": "\d+"}, name="admin_post_edit")
      * @Method({"GET", "POST"})
+     * @param Request $request
+     * @param Post $post
+     * @param Slugger $slugger
+     * @return RedirectResponse|Response
      */
-    public function editAction(Request $request, Post $post, Slugger $slugger)
+    public function editAction(Request $request, Post $post, Slugger $slugger): Response
     {
         $this->denyAccessUnlessGranted('edit', $post, 'Posts can only be edited by their authors.');
 
@@ -166,8 +182,11 @@ class BlogController extends Controller
      *
      * The Security annotation value is an expression (if it evaluates to false,
      * the authorization mechanism will prevent the user accessing this resource).
+     * @param Request $request
+     * @param Post $post
+     * @return RedirectResponse
      */
-    public function deleteAction(Request $request, Post $post)
+    public function deleteAction(Request $request, Post $post): RedirectResponse
     {
         if (!$this->isCsrfTokenValid('delete', $request->request->get('token'))) {
             return $this->redirectToRoute('admin_post_index');

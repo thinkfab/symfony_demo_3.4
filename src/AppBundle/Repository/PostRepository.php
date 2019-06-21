@@ -12,8 +12,11 @@
 namespace AppBundle\Repository;
 
 use AppBundle\Entity\Post;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\Query;
+use Exception;
 use Pagerfanta\Adapter\DoctrineORMAdapter;
 use Pagerfanta\Pagerfanta;
 
@@ -26,6 +29,8 @@ use Pagerfanta\Pagerfanta;
  * @author Ryan Weaver <weaverryan@gmail.com>
  * @author Javier Eguiluz <javier.eguiluz@gmail.com>
  * @author Yonel Ceruto <yonelceruto@gmail.com>
+ * @method Post|null find($id, $lockMode = null, $lockVersion = null)
+ * @method Collection|Post[] findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
 class PostRepository extends EntityRepository
 {
@@ -33,8 +38,9 @@ class PostRepository extends EntityRepository
      * @param int $page
      *
      * @return Pagerfanta
+     * @throws Exception
      */
-    public function findLatest($page = 1)
+    public function findLatest(int $page = 1): Pagerfanta
     {
         $query = $this->getEntityManager()
             ->createQuery('
@@ -62,11 +68,11 @@ class PostRepository extends EntityRepository
 
     /**
      * @param string $rawQuery The search query as input by the user
-     * @param int    $limit    The maximum number of results returned
+     * @param int $limit The maximum number of results returned
      *
-     * @return array
+     * @return Collection|Post[]
      */
-    public function findBySearchQuery($rawQuery, $limit = Post::NUM_ITEMS)
+    public function findBySearchQuery(string $rawQuery, int $limit = Post::NUM_ITEMS): Collection
     {
         $query = $this->sanitizeSearchQuery($rawQuery);
         $searchTerms = $this->extractSearchTerms($query);
@@ -84,11 +90,12 @@ class PostRepository extends EntityRepository
             ;
         }
 
-        return $queryBuilder
+        return new ArrayCollection($queryBuilder
             ->orderBy('p.publishedAt', 'DESC')
             ->setMaxResults($limit)
             ->getQuery()
-            ->getResult();
+            ->getResult()
+        );
     }
 
     /**
@@ -98,7 +105,7 @@ class PostRepository extends EntityRepository
      *
      * @return string
      */
-    private function sanitizeSearchQuery($query)
+    private function sanitizeSearchQuery(string $query): string
     {
         return preg_replace('/[^[:alnum:] ]/', '', trim(preg_replace('/[[:space:]]+/', ' ', $query)));
     }
@@ -110,11 +117,11 @@ class PostRepository extends EntityRepository
      *
      * @return array
      */
-    private function extractSearchTerms($searchQuery)
+    private function extractSearchTerms(string $searchQuery): array
     {
         $terms = array_unique(explode(' ', mb_strtolower($searchQuery)));
 
-        return array_filter($terms, function ($term) {
+        return array_filter($terms, static function ($term) {
             return 2 <= mb_strlen($term);
         });
     }

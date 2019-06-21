@@ -11,10 +11,13 @@
 
 namespace AppBundle\Controller;
 
+use AppBundle\Contract\Manager\PostManagerInterface;
 use AppBundle\Entity\Comment;
 use AppBundle\Entity\Post;
 use AppBundle\Events;
 use AppBundle\Form\CommentType;
+use DateTime;
+use Exception;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Cache;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
@@ -24,8 +27,10 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\GenericEvent;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Ldap\Adapter\ExtLdap\Collection;
 
 /**
  * Controller used to manage blog contents in the public part of the site.
@@ -47,11 +52,14 @@ class BlogController extends Controller
      * NOTE: For standard formats, Symfony will also automatically choose the best
      * Content-Type header for the response.
      * See https://symfony.com/doc/current/quick_tour/the_controller.html#using-formats
+     * @param PostManagerInterface $postManager
+     * @param $page
+     * @param $_format
+     * @return Response
      */
-    public function indexAction($page, $_format)
+    public function indexAction(PostManagerInterface $postManager, $page, $_format): Response
     {
-        $em = $this->getDoctrine()->getManager();
-        $posts = $em->getRepository(Post::class)->findLatest($page);
+        $posts = $postManager->findLatest($page);
 
         // Every template name also has two extensions that specify the format and
         // engine for that template.
@@ -67,8 +75,11 @@ class BlogController extends Controller
      * after performing a database query looking for a Post with the 'slug'
      * value given in the route.
      * See https://symfony.com/doc/current/bundles/SensioFrameworkExtraBundle/annotations/converters.html
+     * @param Post $post
+     * @return Response
+     * @throws Exception
      */
-    public function postShowAction(Post $post)
+    public function postShowAction(Post $post): Response
     {
         // Symfony provides a function called 'dump()' which is an improved version
         // of the 'var_dump()' function. It's useful to quickly debug the contents
@@ -77,7 +88,7 @@ class BlogController extends Controller
         // This function can be used both in PHP files and Twig templates. The only
         // requirement is to have enabled the DebugBundle.
         if ('dev' === $this->getParameter('kernel.environment')) {
-            dump($post, $this->getUser(), new \DateTime());
+            dump($post, $this->getUser(), new DateTime());
         }
 
         return $this->render('blog/post_show.html.twig', ['post' => $post]);
@@ -92,8 +103,12 @@ class BlogController extends Controller
      * NOTE: The ParamConverter mapping is required because the route parameter
      * (postSlug) doesn't match any of the Doctrine entity properties (slug).
      * See https://symfony.com/doc/current/bundles/SensioFrameworkExtraBundle/annotations/converters.html#doctrine-converter
+     * @param Request $request
+     * @param Post $post
+     * @param EventDispatcherInterface $eventDispatcher
+     * @return RedirectResponse|Response
      */
-    public function commentNewAction(Request $request, Post $post, EventDispatcherInterface $eventDispatcher)
+    public function commentNewAction(Request $request, Post $post, EventDispatcherInterface $eventDispatcher): Response
     {
         $comment = new Comment();
         $comment->setAuthor($this->getUser());
@@ -142,7 +157,7 @@ class BlogController extends Controller
      *
      * @return Response
      */
-    public function commentFormAction(Post $post)
+    public function commentFormAction(Post $post): Response
     {
         $form = $this->createForm(CommentType::class);
 
@@ -156,16 +171,19 @@ class BlogController extends Controller
      * @Route("/search", name="blog_search")
      * @Method("GET")
      *
+     * @param Request $request
+     * @param PostManagerInterface $postManager
      * @return Response|JsonResponse
      */
-    public function searchAction(Request $request)
+    public function searchAction(Request $request, PostManagerInterface $postManager): Response
     {
         if (!$request->isXmlHttpRequest()) {
             return $this->render('blog/search.html.twig');
         }
 
         $query = $request->query->get('q', '');
-        $posts = $this->getDoctrine()->getRepository(Post::class)->findBySearchQuery($query);
+        /** @var Collection|Post[] $posts */
+        $posts = $postManager->findBySearchQuery($query);
 
         $results = [];
         foreach ($posts as $post) {
