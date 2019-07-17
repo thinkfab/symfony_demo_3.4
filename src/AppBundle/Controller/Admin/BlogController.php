@@ -20,6 +20,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\HttpFoundation\Request;
+use AppBundle\Manager\PostManager;
 
 /**
  * Controller used to manage blog contents in the backend.
@@ -53,11 +54,11 @@ class BlogController extends Controller
      * @Route("/", name="admin_post_index")
      * @Method("GET")
      */
-    public function indexAction()
+    public function indexAction(PostManager $post)
     {
-        $em = $this->getDoctrine()->getManager();
-        $posts = $em->getRepository(Post::class)->findBy(['author' => $this->getUser()], ['publishedAt' => 'DESC']);
-
+     
+        $posts = $post->findByAuthor($this->getUser());
+        
         return $this->render('admin/blog/index.html.twig', ['posts' => $posts]);
     }
 

@@ -11,21 +11,22 @@
 
 namespace AppBundle\Controller;
 
-use AppBundle\Entity\Comment;
-use AppBundle\Entity\Post;
 use AppBundle\Events;
+use AppBundle\Entity\Post;
+use AppBundle\Entity\Comment;
 use AppBundle\Form\CommentType;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Cache;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Symfony\Component\EventDispatcher\GenericEvent;
-use Symfony\Component\HttpFoundation\JsonResponse;
+use AppBundle\Manager\PostManager;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\EventDispatcher\GenericEvent;
+use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Cache;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 
 /**
  * Controller used to manage blog contents in the public part of the site.
@@ -48,10 +49,10 @@ class BlogController extends Controller
      * Content-Type header for the response.
      * See https://symfony.com/doc/current/quick_tour/the_controller.html#using-formats
      */
-    public function indexAction($page, $_format)
+    public function indexAction(PostManager $post, $page, $_format)
     {
-        $em = $this->getDoctrine()->getManager();
-        $posts = $em->getRepository(Post::class)->findLatest($page);
+       
+        $posts = $post->findLatest($page);
 
         // Every template name also has two extensions that specify the format and
         // engine for that template.
@@ -158,14 +159,14 @@ class BlogController extends Controller
      *
      * @return Response|JsonResponse
      */
-    public function searchAction(Request $request)
+    public function searchAction(Request $request, PostManager $post)
     {
         if (!$request->isXmlHttpRequest()) {
             return $this->render('blog/search.html.twig');
         }
 
         $query = $request->query->get('q', '');
-        $posts = $this->getDoctrine()->getRepository(Post::class)->findBySearchQuery($query);
+        $posts = $post->findBySearchQuery($query);
 
         $results = [];
         foreach ($posts as $post) {
