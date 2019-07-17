@@ -4,6 +4,7 @@
 
 {% block main %}
     <h1>{{ post.title }}</h1>
+    <p class="subtitle">{{ post.subtitle }}</p>
 
     <p class="post-metadata">
         <span class="metadata"><i class="fa fa-calendar"></i> {{ post.publishedAt|localizeddate('long', 'medium', null, 'UTC') }}</span>

@@ -119,6 +119,11 @@ class Post
      */
     private $tags;
 
+    /**
+     * @ORM\Column(type="string", nullable=true)
+     */
+    private $subtitle;
+
     public function __construct()
     {
         $this->publishedAt = new \DateTime();
@@ -243,5 +248,15 @@ class Post
     public function getTags()
     {
         return $this->tags;
+    }
+
+    public function getSubtitle()
+    {
+        return $this->subtitle;
+    }
+
+    public function setSubtitle($subtitle)
+    {
+        $this->subtitle = $subtitle;
     }
 }

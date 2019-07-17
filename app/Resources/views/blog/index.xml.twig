@@ -11,6 +11,7 @@
         {% for post in posts %}
             <item>
                 <title>{{ post.title }}</title>
+                <p class="subtitle">{{ post.subtitle }}</p>
                 <description>{{ post.summary }}</description>
                 <link>{{ url('blog_post', {'slug': post.slug}) }}</link>
                 <guid>{{ url('blog_post', {'slug': post.slug}) }}</guid>
