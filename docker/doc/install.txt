@@ -1,0 +1,26 @@
+\n
+\n
+\n
+\n
+\e[32m===================================================================\n
+\n
+Installation was finished.\n
+\n
+=============\n
+\n
+Use "make fixtures-install" to install fixtures if you need it.\n
+\n
+=============\n
+\n
+Use "make start" to start project.\n
+\n
+==============\n
+\n
+Use "make help" to display available commands.\n
+\n
+==============\n
+\n
+Use "make connect" to connect on a remote bash terminal on the php container.\n
+\n
+===================================================================\n
+\e[39m

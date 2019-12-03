@@ -20,3 +20,9 @@
 /web/build/fonts/glyphicons-*
 /web/build/images/glyphicons-*
 .idea
+
+###> sys/docker ###
+docker/db/*
+!docker/db/.gitkeep
+.bash_history
+###< sys/docker ###
