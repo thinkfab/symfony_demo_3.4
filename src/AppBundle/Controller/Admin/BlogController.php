@@ -12,6 +12,7 @@
 namespace AppBundle\Controller\Admin;
 
 use AppBundle\Entity\Post;
+use AppBundle\Manager\PostInterface;
 use AppBundle\Form\PostType;
 use AppBundle\Utils\Slugger;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -53,10 +54,9 @@ class BlogController extends Controller
      * @Route("/", name="admin_post_index")
      * @Method("GET")
      */
-    public function indexAction()
+    public function indexAction(PostInterface $postManager)
     {
-        $em = $this->getDoctrine()->getManager();
-        $posts = $em->getRepository(Post::class)->findBy(['author' => $this->getUser()], ['publishedAt' => 'DESC']);
+        $posts = $postManager->findBy(['author' => $this->getUser()], ['publishedAt' => 'DESC']);
 
         return $this->render('admin/blog/index.html.twig', ['posts' => $posts]);
     }
