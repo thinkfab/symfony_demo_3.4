@@ -165,7 +165,10 @@
                 <source>action.browse_admin</source>
                 <target>Naviguer sur l'admin</target>
             </trans-unit>
-
+            <trans-unit id="label.subTitle">
+                <source>label.subTitle</source>
+                <target>Sous-titre</target>
+            </trans-unit>
             <trans-unit id="label.title">
                 <source>label.title</source>
                 <target>Titre</target>
