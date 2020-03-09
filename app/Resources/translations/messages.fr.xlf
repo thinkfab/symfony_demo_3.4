@@ -221,7 +221,10 @@
                 <source>action.edit_contents</source>
                 <target>Modifier le contenu</target>
             </trans-unit>
-
+            <trans-unit id="action.publish_answer">
+                <source>action.publish_answer</source>
+                <target>Répondre</target>
+            </trans-unit>
             <trans-unit id="menu.toggle_nav">
                 <source>menu.toggle_nav</source>
                 <target>Activer ou désactiver la navigation</target>
@@ -254,7 +257,10 @@
                 <source>menu.rss</source>
                 <target>Blog Posts RSS</target>
             </trans-unit>
-
+            <trans-unit id="post.answered_to">
+                <source>post.answered_to</source>
+                <target>A répondu</target>
+            </trans-unit>
             <trans-unit id="post.to_publish_a_comment">
                 <source>post.to_publish_a_comment</source>
                 <target>pour publier un commentaire</target>

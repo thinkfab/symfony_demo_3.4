@@ -1,34 +1,16 @@
 <?php
 
-/*
- * This file is part of the Symfony package.
- *
- * (c) Fabien Potencier <fabien@symfony.com>
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
-
 namespace AppBundle\Entity;
 
-use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity
- * @ORM\Table(name="symfony_demo_comment")
- *
- * Defines the properties of the Comment entity to represent the blog comments.
- * See https://symfony.com/doc/current/book/doctrine.html#creating-an-entity-class
- *
- * Tip: if you have an existing database, you can generate these entity class automatically.
- * See https://symfony.com/doc/current/cookbook/doctrine/reverse_engineering.html
- *
- * @author Ryan Weaver <weaverryan@gmail.com>
- * @author Javier Eguiluz <javier.eguiluz@gmail.com>
+ * @ORM\Table(name="symfony_demo_answers")
+ * Defines the properties of the Answer entity to represent the blog answers of comments.
  */
-class Comment
+class Answer
 {
     /**
      * @var int
@@ -40,12 +22,12 @@ class Comment
     private $id;
 
     /**
-     * @var Post
+     * @var Comment
      *
-     * @ORM\ManyToOne(targetEntity="Post", inversedBy="comments")
+     * @ORM\ManyToOne(targetEntity="Comment", inversedBy="answers")
      * @ORM\JoinColumn(nullable=false)
      */
-    private $post;
+    private $comment;
 
     /**
      * @var string
@@ -77,22 +59,11 @@ class Comment
      */
     private $author;
 
-    /**
-     * @var Answer[]|ArrayCollection
-     *
-     * @ORM\OneToMany(
-     *      targetEntity="Answer",
-     *      mappedBy="comment",
-     *      orphanRemoval=true
-     * )
-     * @ORM\OrderBy({"publishedAt": "DESC"})
-     */
-    private $answers;
+
 
     public function __construct()
     {
         $this->publishedAt = new \DateTime();
-        $this->answers = new ArrayCollection();
     }
 
     /**
@@ -149,34 +120,15 @@ class Comment
         $this->author = $author;
     }
 
-    public function getPost()
+    public function getComment()
     {
-        return $this->post;
+        return $this->comment;
     }
 
-    public function setPost(Post $post)
+    public function setComment(Comment $comment)
     {
-        $this->post = $post;
+        $this->comment = $comment;
     }
 
-
-    public function getAnswers()
-    {
-        return $this->answers;
-    }
-
-    public function addAnswers(Answer $answer)
-    {
-        $answer->setComment($this);
-        if (!$this->answers->contains($answer)) {
-            $this->answers->add($answer);
-        }
-    }
-
-    public function removeAnswers(Answer $answer)
-    {
-        $answer->setComment(null);
-        $this->answers->removeElement($answer);
-    }
 
 }

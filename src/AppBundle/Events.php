@@ -29,4 +29,5 @@ final class Events
      * @var string
      */
     const COMMENT_CREATED = 'comment.created';
+    const ANSWER_CREATED = 'comment.created';
 }

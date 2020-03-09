@@ -225,7 +225,10 @@
                 <source>action.edit_contents</source>
                 <target>Edit contents</target>
             </trans-unit>
-
+            <trans-unit id="action.publish_answer">
+                <source>action.publish_answer</source>
+                <target>Answer</target>
+            </trans-unit>
             <trans-unit id="menu.toggle_nav">
                 <source>menu.toggle_nav</source>
                 <target>Toggle navigation</target>
@@ -262,7 +265,10 @@
                 <source>menu.search</source>
                 <target>Search</target>
             </trans-unit>
-
+            <trans-unit id="post.answered_to">
+                <source>post.answered_to</source>
+                <target>Answered</target>
+            </trans-unit>
             <trans-unit id="post.to_publish_a_comment">
                 <source>post.to_publish_a_comment</source>
                 <target>to publish a comment</target>

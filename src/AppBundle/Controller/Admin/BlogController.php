@@ -53,11 +53,14 @@ class BlogController extends Controller
      * @Route("/", name="admin_index")
      * @Route("/", name="admin_post_index")
      * @Method("GET")
+     * @param PostInterface $postmanager
+     * @return \Symfony\Component\HttpFoundation\Response
      */
+
     public function indexAction(PostInterface $postManager)
     {
-        $posts = $postManager->findBy(['author' => $this->getUser()], ['publishedAt' => 'DESC']);
 
+        $posts = $postManager->findBy(['author' => $this->getUser()], ['publishedAt' => 'DESC']);
         return $this->render('admin/blog/index.html.twig', ['posts' => $posts]);
     }
 

@@ -23,9 +23,8 @@ class PostManager implements PostInterface
     /**
      * @param int $page
      *
-     * @return Pagerfanta
      */
-    public function findLatest($page):Pagerfanta
+    public function findLatest($page)
     {
         return  $this->postRepository->findLatest($page);
     }
@@ -35,15 +34,13 @@ class PostManager implements PostInterface
      * @param int $limit
      * @return ArrayCollection
      */
-    public function findBySearchQuery($rawQuery, $limit = Post::NUM_ITEMS):ArrayCollection
+    public function findBySearchQuery($rawQuery, $limit = Post::NUM_ITEMS)
     {
         return $this->postRepository->findBySearchQuery($rawQuery, $limit);
     }
 
-    //Admin methods
     /**
-     * @param $user
-     * @return array|Post[]
+     * @inheritDoc
      */
     public function findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
     {

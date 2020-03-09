@@ -40,17 +40,33 @@
     </h3>
 
     {% for comment in post.comments %}
-        <div class="row post-comment">
-            <a name="comment_{{ comment.id }}"></a>
-            <h4 class="col-sm-3">
-                <strong>{{ comment.author.fullName }}</strong> {{ 'post.commented_on'|trans }}
-                {# it's not mandatory to set the timezone in localizeddate(). This is done to
-                   avoid errors when the 'intl' PHP extension is not available and the application
-                   is forced to use the limited "intl polyfill", which only supports UTC and GMT #}
-                <strong>{{ comment.publishedAt|localizeddate('medium', 'short', null, 'UTC') }}</strong>
-            </h4>
-            <div class="col-sm-9">
-                {{ comment.content|md2html }}
+        <div class="fa-border comment-section">
+            <div class="row post-comment">
+                <a name="comment_{{ comment.id }}"></a>
+                <h4 class="col-sm-3">
+                    <strong>{{ comment.author.fullName }}</strong> {{ 'post.commented_on'|trans }}
+                    {# it's not mandatory to set the timezone in localizeddate(). This is done to
+                       avoid errors when the 'intl' PHP extension is not available and the application
+                       is forced to use the limited "intl polyfill", which only supports UTC and GMT #}
+                    <strong>{{ comment.publishedAt|localizeddate('medium', 'short', null, 'UTC') }}</strong>
+                </h4>
+                <div class="col-sm-9">
+                    {{ comment.content|md2html }}
+                </div>
+            </div>
+            <div class="row comment-answer">
+                {% for answer in comment.answers %}
+                    <p class="col-sm-9">{{answer.content}}</p>
+
+                    <h4 class="col-sm-3">
+                        <a name="comment_{{ answer.id }}"></a>
+                        <strong>{{ answer.author.fullName }}</strong> {{ 'post.answered_to'|trans }}
+                        <strong>{{ answer.publishedAt|localizeddate('medium', 'short', null, 'UTC') }}</strong>
+                    </h4>
+                {% endfor %}
+            </div>
+            <div class="row">
+                {{ render(controller('AppBundle:Blog:answerForm', {'id': comment.id})) }}
             </div>
         </div>
     {% else %}

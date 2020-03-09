@@ -12,6 +12,8 @@
 namespace AppBundle\Controller;
 
 use AppBundle\Entity\Comment;
+use AppBundle\Form\AnswerType;
+use AppBundle\Entity\Answer;
 use AppBundle\Entity\Post;
 use AppBundle\Events;
 use AppBundle\Form\CommentType;
@@ -48,7 +50,12 @@ class BlogController extends Controller
      * NOTE: For standard formats, Symfony will also automatically choose the best
      * Content-Type header for the response.
      * See https://symfony.com/doc/current/quick_tour/the_controller.html#using-formats
+     * @param $page
+     * @param $_format
+     * @param PostInterface $postmanager
+     * @return Response
      */
+
     public function indexAction($page, $_format, PostInterface $postManager)
     {
         $posts = $postManager->findLatest($page);
@@ -130,6 +137,37 @@ class BlogController extends Controller
     }
 
     /**
+     * @Route("/comment/{commentId}/answer/new" , name="answer_new")
+     * @Method("POST")
+     * @ParamConverter("comment", options={"id" = "commentId"})
+     * @Security("is_granted('IS_AUTHENTICATED_FULLY')")
+     */
+    public function answerNewAction(Request $request, Comment $comment, EventDispatcherInterface $eventDispatcher)
+    {
+        $answer = new Answer();
+        $answer->setAuthor($this->getUser());
+        $comment->addAnswers($answer);
+        $form = $this->createForm(AnswerType::class, $answer);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $em = $this->getDoctrine()->getManager();
+            $em->persist($answer);
+            $em->flush();
+
+            $event = new GenericEvent($answer);
+            //$eventDispatcher->dispatch(Events::ANSWER_CREATED, $event);
+
+            return $this->redirectToRoute('blog_post', ['slug' => $comment->getPost()->getSlug()]);
+        }
+
+        return $this->render('blog/comment_form_error.html.twig', [
+            'post' => $comment->getPost()->getSlug(),
+            'form' => $form->createView(),
+        ]);
+    }
+
+    /**
      * This controller is called directly via the render() function in the
      * blog/post_show.html.twig template. That's why it's not needed to define
      * a route name for it.
@@ -152,11 +190,27 @@ class BlogController extends Controller
     }
 
     /**
+    * @param Comment $comment
+    * @return Response
+    */
+    public function answerFormAction(Comment $comment)
+    {
+        $form = $this->createForm(AnswerType::class);
+        return $this->render('blog/_answer_form.html.twig', [
+            'comment' => $comment,
+            'form' => $form->createView(),
+        ]);
+    }
+
+    /**
      * @Route("/search", name="blog_search")
      * @Method("GET")
      *
+     * @param Request $request
+     * @param PostInterface $postmanager
      * @return Response|JsonResponse
      */
+
     public function searchAction(Request $request, PostInterface $postManager)
     {
         if (!$request->isXmlHttpRequest()) {
@@ -165,7 +219,6 @@ class BlogController extends Controller
 
         $query = $request->query->get('q', '');
         $posts = $postManager->findBySearchQuery($query);
-
         $results = [];
         foreach ($posts as $post) {
             $results[] = [
